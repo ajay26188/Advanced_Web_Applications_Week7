@@ -18,6 +18,11 @@ app.use(
 const users = []
 
 app.post("/api/user/register", async (req, res) => {
+    //Task 4
+    if (req.session.user) {
+        return res.redirect("/");
+    }//Task 4 ends
+
     const userID = Math.floor(Math.random()*1000000);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = {id: userID, username: req.body.username, password: hashedPassword}
@@ -37,6 +42,11 @@ app.get('/api/user/list', function(req, res) {
 
 //Task 2
 app.post("/api/user/login",async (req, res) => {
+    //Task 4
+    if (req.session.user) {
+        return res.redirect("/");
+    }//Task 4 ends
+
     const {username, password} = req.body;
     const user = users.find((user) => user.username === username);
 
@@ -54,5 +64,19 @@ app.post("/api/user/login",async (req, res) => {
 
     res.status(200).json("ok");
 })
+
+//Task 3
+
+app.get("/api/secret", (req,res) => {
+    if (req.session.user) {
+        res.status(200)
+    }
+    else {
+        res.status(401);
+    }
+});
+
+
+
 
 app.listen(3000);
