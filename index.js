@@ -92,13 +92,13 @@ app.get("/api/secret", (req,res) => {
 
 //Task 4 - Login redirection
 
-/*
+
 function checkNotAuthenticated(req,res,next) {
     if (req.isAuthenticated()) {
         return res.redirect("/");
     }
     return next()
 }
-*/
+
 
 app.listen(3000);
