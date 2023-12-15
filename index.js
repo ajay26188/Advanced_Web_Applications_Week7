@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(session({
         secret: "12345",
         resave: false,
-        saveUninitialized: false,
+        saveUninitialized: true,
 }));
 
 app.use(passport.initialize());
@@ -69,27 +69,28 @@ passport.deserializeUser((id, done) => {
 })
 
 app.post("/api/user/login", checkNotAuthenticated, passport.authenticate('local'),(req, res) => {
+    req.session.user=req.user;
     res.status(200).json('ok');
 })
 
 //Task 3 - Secret route
-
+/*
 function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next()
     }
     return res.status(401)
-}
+}*/
 
-app.get("/api/secret", checkAuthenticated, (req,res) => {
-    res.status(200);
+app.get("/api/secret", (req,res) => {
+    if (req.session.user) {
+        return res.status(200).json('yes');
+    }
+    res.status(401).json('no');
 })
 
 //Task 4 - Login redirection
 
-app.get("/",(req,res) => {
-    res.status(200);
-})
 
 function checkNotAuthenticated(req,res,next) {
     if (req.isAuthenticated()) {
