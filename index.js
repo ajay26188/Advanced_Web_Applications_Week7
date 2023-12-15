@@ -22,10 +22,6 @@ app.use(passport.session());
 const users = []
 
 app.post("/api/user/register", checkNotAuthenticated, async (req, res) => {
-    //Task 4
-    if (req.session.user) {
-        return res.redirect('/');
-    }
 
     const userID = Math.floor(Math.random()*1000000);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -73,10 +69,6 @@ passport.deserializeUser((id, done) => {
 })
 
 app.post("/api/user/login", checkNotAuthenticated, passport.authenticate('local'),(req, res) => {
-    //Task 4
-    if (req.session.user) {
-        return res.redirect('/');
-    }
 
     req.session.user=req.user;
     res.status(200).json('ok');
