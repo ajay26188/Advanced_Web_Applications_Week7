@@ -81,7 +81,7 @@ function checkAuthenticated(req, res, next) {
     return res.status(401)
 }
 
-app.get("/secret", checkAuthenticated, (req,res) => {
+app.get("api/secret", checkAuthenticated, (req,res) => {
     res.status(200);
 })
 
