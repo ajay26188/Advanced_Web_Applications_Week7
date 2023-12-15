@@ -82,7 +82,7 @@ function checkAuthenticated(req, res, next) {
 }
 
 app.get("/api/secret", checkAuthenticated, (req,res) => {
-    res.status(200);
+    res.status(200).json('Yes');
 })
 
 //Task 4 - Login redirection
@@ -93,5 +93,6 @@ function checkNotAuthenticated(req,res,next) {
     }
     return next()
 }
+
 
 app.listen(3000);
