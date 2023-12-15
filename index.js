@@ -18,10 +18,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-//Task 1
+//Task 1 - Registration
 const users = []
 
-app.post("/api/user/register", async (req, res) => {
+app.post("/api/user/register", checkNotAuthenticated, async (req, res) => {
 
     const userID = Math.floor(Math.random()*1000000);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -40,7 +40,7 @@ app.get('/api/user/list', function(req, res) {
     res.json(users);
 })
 
-//Task 2
+//Task 2 - Login
 passport.use(new LocalStrategy(
     async function (username, password, done) {
         const user = users.find(user => user.username === username);
@@ -68,9 +68,30 @@ passport.deserializeUser((id, done) => {
     done(null, user);
 })
 
-app.post("/api/user/login", passport.authenticate('local'),(req, res) => {
+app.post("/api/user/login", checkNotAuthenticated, passport.authenticate('local'),(req, res) => {
     res.status(200).json('ok');
 })
 
+//Task 3 - Secret route
+
+function checkAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next()
+    }
+    return res.status(401)
+}
+
+app.get("/api/secret", checkAuthenticated, (req,res) => {
+    res.status(200);
+})
+
+//Task 4 - Login redirection
+
+function checkNotAuthenticated(req,res,next) {
+    if (req.isAuthenticated()) {
+        return res.redirect("/");
+    }
+    return next()
+}
 
 app.listen(3000);
