@@ -87,6 +87,10 @@ app.get("/api/secret", checkAuthenticated, (req,res) => {
 
 //Task 4 - Login redirection
 
+app.get("/", (req, res) => {
+    res.status(200);
+})
+
 function checkNotAuthenticated(req,res,next) {
     if (req.isAuthenticated()) {
         return res.redirect("/");
