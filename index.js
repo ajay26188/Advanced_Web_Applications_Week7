@@ -24,7 +24,7 @@ app.post("/api/user/register", async (req, res) => {
 
     const userID = Math.floor(Math.random()*1000000);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const user = {id: userID, username: req.body.username, password: hashedPassword}
+    const user = {id: userID, username: req.body.username, password: hashedPassword, todos: []}
     const checkUsername = users.find(user => user.username ===  req.body.username);
 
     if (checkUsername) {
@@ -81,6 +81,24 @@ app.get("/api/secret", (req,res) => {
     }
     res.status(401).json('no');
 })
+
+//Task 5
+
+app.post("/api/todos",(req,res) => {
+    const user = req.session.user;
+    if(!user) {
+        return res.status(401);
+    }
+    const todo = req.body.todo;
+    user.todos.push(todo);
+    res.json({id: user.id, todos: user.todos });
+})
+
+app.get("/api/todos/list",(req,res) => {
+    const todoList = users.map(user => ({id:user.id, todos:user.todos}));
+    res.json(todoList);
+})
+
 
 
 app.listen(3000);
