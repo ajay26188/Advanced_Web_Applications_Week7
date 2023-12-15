@@ -4,24 +4,24 @@ const express = require("express");
 const app = express()
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
 
 app.use(express.json());
-app.use(
-    session({
+app.use(session({
         secret: "12345",
         resave: false,
-        saveUninitialized: true,
-    })
-)
+        saveUninitialized: false,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 //Task 1
 const users = []
 
 app.post("/api/user/register", async (req, res) => {
-    //Task 4
-    if (req.session.user) {
-        return res.redirect("/");
-    }//Task 4 ends
 
     const userID = Math.floor(Math.random()*1000000);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -41,42 +41,36 @@ app.get('/api/user/list', function(req, res) {
 })
 
 //Task 2
-app.post("/api/user/login",async (req, res) => {
-    //Task 4
-    if (req.session.user) {
-        return res.redirect("/");
-    }//Task 4 ends
-
-    const {username, password} = req.body;
-    const user = users.find((user) => user.username === username);
-
-    if (!user || !(await bcrypt.compare(password, user.passowrd))) {
-        return res.status(401).json("Wrong password")
+passport.use(new LocalStrategy(
+    async function (username, password, done) {
+        const user = users.find(user => user.username === username);
+        if (!user) {
+            return done(null, false);
+        }
+        try {
+            if (await bcrypt.compare(password, user.password)) {
+                return done(null, user);
+            }else {
+                return done(null, false)
+            }   
+        } catch (e) {
+            return done(e);
+        }
     }
+))
 
-    req.session.user = {id: user.id, username: user.username};
-
-    res.cookie("connect.sid",req.sessionID, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-    });
-
-    res.status(200).json("ok");
+passport.serializeUser((user, done) => {
+    done(null, user.id);
 })
 
-//Task 3
+passport.deserializeUser((id, done) => {
+    const user = users.find(user => user.id === id);
+    done(null, user);
+})
 
-app.get("/api/secret", (req,res) => {
-    if (req.session.user) {
-        res.status(200)
-    }
-    else {
-        res.status(401);
-    }
-});
-
-
+app.post("/api/user/login", passport.authenticate('local'),(req, res) => {
+    res.status(200).json('ok');
+})
 
 
 app.listen(3000);
