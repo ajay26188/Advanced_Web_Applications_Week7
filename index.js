@@ -24,7 +24,7 @@ app.get("/",(req,res) => {
 //Task 1 - Registration
 const users = []
 
-app.post("/api/user/register", async (req, res) => {
+app.post("/api/user/register", checkNotAuthenticated, async (req, res) => {
     if (req.session.user) {
         return res.redirect('/');
     }
@@ -74,7 +74,7 @@ passport.deserializeUser((id, done) => {
     done(null, user);
 })
 
-app.post("/api/user/login", passport.authenticate('local'),(req, res) => {
+app.post("/api/user/login",checkNotAuthenticated, passport.authenticate('local'),(req, res) => {
     if (req.session.user) {
         return res.redirect('/');
     }
@@ -101,13 +101,11 @@ app.get("/api/secret", (req,res) => {
 
 //Task 4 - Login redirection
 
-/*
 function checkNotAuthenticated(req,res,next) {
-    if (req.isAuthenticated()) {
-        return res.redirect("/");
+    if (!req.isAuthenticated()) {
+        return next();
     }
-    return next()
-}*/
-
+    return res.redirect("/");
+};
 
 app.listen(3000);
